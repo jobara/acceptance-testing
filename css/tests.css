@@ -1,0 +1,42 @@
+body{
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+html{
+    height: 100%;
+}
+
+.activate {
+    height:3%;
+}
+
+#testFrame{
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+    display: block;
+    overflow: auto;
+}
+
+button{
+    height: auto;
+    width: auto;
+    margin: 0 auto;
+    display: block;
+}
+
+/* These widths are slightly brittle in that if the width of an individual 
+   thumbnail is changed in Lightbox.css these will need to be updated. */
+.width-6-thumbs {
+    width: 1050px !important;
+}
+
+.tabs-min-width {
+    min-width:425px;
+}
+
+
