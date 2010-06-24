@@ -18,21 +18,6 @@ var jqRobot = jqRobot || {};
      * doh.robot wrapper *
      *********************/
     
-    /*
-    * doh.robot.sequence (may need to look into doh.Deferred)
-        doh.robot.typeKeys ***done***
-        doh.robot.keyPress ***done***
-        doh.robot.keyDown ***done***
-        doh.robot.keyUp ***done***
-        doh.robot.mouseClick
-        doh.robot.mousePress
-        doh.robot.mouseMove
-        doh.robot.mouseRelease
-        doh.robot.mouseWheelSize
-        doh.robot.mouseWheel
-        doh.robot.setClipboard
-    */
-    
     //helper functions
 
     var arrayToObj = function (array) {
@@ -44,37 +29,36 @@ var jqRobot = jqRobot || {};
         return obj;
     };
 
-    var moveMouseToCoordinate = function (x, y, options) {
+    var moveMouseToCoordinate = function (position, options) {
         var opts = options || {};
         
-        doh.robot.mouseMove(x, y, opts.delay, opts.duration);
+        doh.robot.mouseMove(position.x, position.y, opts.delay, opts.duration);
     };
 
     var moveMouse = function (selector, options) {
         var sel = $(selector);
-        var coor = sel.offset();
+        var offset = sel.offset();
         
-        moveMouseToCoordinate(coor.left, coor.top, options);
-    };
-
-    var mouseFuncWithCoordinate = function (func, x, y, buttons, options) {
-        var opts = options || {};
-        var btns = arrayToObj(buttons);
-        
-        moveMouseToCoordinate(x, y, opts);
-        
-        doh.robot[func](btns, opts.delay);
+        moveMouseToCoordinate({x: offset.left, y: offset.top}, options);
     };
     
-    var mouseFuncWithSelector = function (func, selector, buttons, options) {
+    var moveToLocation = function (location, options) {
+        if (location.x && location.y) {
+            moveMouseToCoordinate(location, options);
+        } else {
+            location = $(location);
+            location.focus();
+            moveMouse(location, options);
+        }
+    };
+
+    var mouseFunc = function (funcName, location, buttons, options) {
         var opts = options || {};
         var btns = arrayToObj(buttons);
-        var sel = $(selector);
         
-        sel.focus();
-        moveMouse(sel, opts);
+        moveToLocation(location, options);
         
-        doh.robot[func](btns, opts.delay);
+        doh.robot[funcName](btns, opts.delay);
     };
 
     //doh.robot wrapper functions
@@ -142,107 +126,77 @@ var jqRobot = jqRobot || {};
         }, 
         
         /**
-         * Moves the mouse over the specified element and performs a click.
+         * Moves the mouse over the specified location and performs a click.
          * 
-         * @param {Object} selector, a selector for the element to click
+         * @param {Object} location, a selector or a position object with members x and y
          * @param {Object} buttons, an array of mouse buttons to be clicked, can be "left", "middle", "right"
          * @param {Object} options, an options object with members delay (time to wait before executing) 
          * and duration (time to spend moving the mouse to the specified location)
          */
-        mouseClick: function (selector, buttons, options) {
-            mouseFuncWithSelector("mouseClick", selector, buttons, options);
-        },
-
-        /**
-         * Moves the mouse over the specified coordinate and performs a click.
-         * 
-         * @param {Object} x, the x coordinate to move to.
-         * @param {Object} y, the y coordinate to move to.
-         * @param {Object} buttons, an array of mouse buttons to be clicked, can be "left", "middle", "right"
-         * @param {Object} options, an options object with members delay (time to wait before executing) 
-         * and duration (time to spend moving the mouse to the specified location)
-         */
-        mouseClickAt: function (x, y, buttons, options) {
-            mouseFuncWithCoordinate("mouseClick", x, y, buttons, options);
-        },
-
-        mouseDrag: function () {
-            
+        mouseClick: function (location, buttons, options) {
+            mouseFunc("mouseClick", location, buttons, options);
         },
         
-        mouseDragAt: function () {
-            
+        /**
+         * Convenience method to perform a drag operation
+         * 
+         * @param {Object} startLocation, (drag begins) a selector or a position object with members x and y
+         * @param {Object} endeLocation, (drag ends) a selector or a position object with members x and y
+         * @param {Object} buttons, an array of mouse buttons to be clicked, can be "left", "middle", "right"
+         * @param {Object} options, an options object with members delay (time to wait before executing) 
+         * and duration (time to spend moving the mouse to the specified location)
+         */
+        mouseDrag: function (startLocation, endLocation, buttons, options) {
+            jqRobot.mousePress(startLocation, buttons, options);
+            jqRobot.mouseMove(endLocation, buttons, options);
+        },
+        
+        /**
+         * Convenience method to perform a drag and drop operation
+         * 
+         * @param {Object} startLocation, (drag begins) a selector or a position object with members x and y
+         * @param {Object} endeLocation, (drop location) a selector or a position object with members x and y
+         * @param {Object} buttons, an array of mouse buttons to be clicked, can be "left", "middle", "right"
+         * @param {Object} options, an options object with members delay (time to wait before executing) 
+         * and duration (time to spend moving the mouse to the specified location)
+         */
+        mouseDragAndDrop: function (startLocation, endLocation, buttons, options) {
+            jqRobot.mousePress(startLocation, buttons, options);
+            jqRobot.mouseRelease(endLocation, buttons, options);
         },
 
         /**
-         * Moves the mouse over the specified element and performs a press.
+         * Moves the mouse over the specified location and performs a press.
          * 
-         * @param {Object} selector, a selector for the element for the mouse to be pressed over
+         * @param {Object} location, a selector or a position object with members x and y
          * @param {Object} buttons, an array of mouse buttons to be pressed, can be "left", "middle", "right"
          * @param {Object} options, an options object with members delay (time to wait before executing) 
          * and duration (time to spend moving the mouse to the specified location)
          */
-        mousePress: function (selector, buttons, options) {
-            mouseFuncWithSelector("mousePress", selector, buttons, options);
+        mousePress: function (location, buttons, options) {
+            mouseFunc("mousePress", location, buttons, options);
         }, 
 
         /**
-         * Moves the mouse over the specified coordinate and performs a press.
+         * Moves the mouse over the specified location.
          * 
-         * @param {Object} x, the x coordinate to move to.
-         * @param {Object} y, the y coordinate to move to.
-         * @param {Object} buttons, an array of mouse buttons to be pressed, can be "left", "middle", "right"
-         * @param {Object} options, an options object with members delay (time to wait before executing) 
-         * and duration (time to spend moving the mouse to the specified location)
-         */
-        mousePressAt: function (x, y, buttons, options) {
-            mouseFuncWithCoordinate("mousePress", x, y, buttons, options);
-        },
-
-        /**
-         * Moves the mouse over the specified element.
-         * 
-         * @param {Object} selector, a selector for the element to move to
+         * @param {Object} location, a selector or a position object with members x and y
          * @param {Object} options, an options object with member duration (time to spend moving the mouse to the specified location)
          */
-        mouseMove: function (selector, options) {
-            moveMouse(selector, options);
-        },
-
-        /**
-         * Moves the mouse over the specified coordinate.
-         * 
-         * @param {Object} x, the x coordinate to move to.
-         * @param {Object} y, the y coordinate to move to.
-         * @param {Object} options, an options object with member duration (time to spend moving the mouse to the specified location)
-         */
-        mouseMoveTo: function (x, y, options) {
-            moveMouseToCoordinate(x, y, options);
+        mouseMove: function (location, options) {
+            moveToLocation(location, options);
         },
         
         /**
-         * Moves the mouse over the specified element and performs a release.
+         * Moves the mouse over the specified location and performs a release.
          * 
-         * @param {Object} selector, a selector for the element for the mouse to be released over
+         * @param {Object} location, a selector or a position object with members x and y
          * @param {Object} buttons, an array of mouse buttons to be released, can be "left", "middle", "right"
          * @param {Object} options, an options object with members delay (time to wait before executing) 
          * and duration (time to spend moving the mouse to the specified location)
          */
-        mouseRelease: function (selector, buttons, options) {
-            mouseFuncWithSelector("mouseRelease", selector, buttons, options);
-        },
-        
-        /**
-         * Moves the mouse over the specified coordinate and performs a release.
-         * 
-         * @param {Object} x, the x coordinate to move to.
-         * @param {Object} y, the y coordinate to move to.
-         * @param {Object} buttons, an array of mouse buttons to be released, can be "left", "middle", "right"
-         * @param {Object} options, an options object with members delay (time to wait before executing) 
-         * and duration (time to spend moving the mouse to the specified location)
-         */
-        mouseReleaseAt: function (x, y, buttons, options) {
-            mouseFuncWithCoordinate("mouseRelease", x, y, buttons, options);
+        mouseRelease: function (location, buttons, options) {
+            mouseFunc("mouseRelease", location, buttons, options);
         },
         
         /**
@@ -261,6 +215,13 @@ var jqRobot = jqRobot || {};
             }
             
             doh.robot.mouseWheel(scrollAmount, opts.delay, opts.duration);
+        },
+        
+        setClipboard: function (data, options) {
+            var opts = options || {};
+            opts.format = opts.format === "html" ? "text/html" : "";
+            
+            doh.robot.setClipboard(data, opts.format);
         }
     };
 
