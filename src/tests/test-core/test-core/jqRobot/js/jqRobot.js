@@ -217,12 +217,34 @@ var jqRobot = jqRobot || {};
             doh.robot.mouseWheel(scrollAmount, opts.delay, opts.duration);
         },
         
+		/**
+		 * Sets the system's clipboard data
+		 * 
+		 * @param {Object} data, the data to save to the clipboard
+		 * @param {Object} options, an options object with member format specifing html ("ext/html")
+		 * otherwise it will assume the format is plain text.
+		 */
         setClipboard: function (data, options) {
             var opts = options || {};
             opts.format = opts.format === "html" ? "text/html" : "";
             
             doh.robot.setClipboard(data, opts.format);
-        }
+        }, 
+		
+		/**
+		 * Used to defer a function call.
+		 * This is useful for adding in javascript functions that must be executed synchronously with
+		 * the robot actions.
+		 * 
+		 * @param {Object} func, a function to be executed
+		 * @param {Object} options, an options object with members delay (time to wait before executing) 
+         * and duration (time to spend executing the function)
+		 */
+		sequence: function (func, options) {
+			var opts = options || {};
+			
+			doh.robot.sequence(func, opts.delay, opts.duration);
+		}
     };
 
     // Mix these compatibility functions into the jqRobot namespace.
