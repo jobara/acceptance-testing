@@ -57,7 +57,6 @@ var jqRobot = jqRobot || {};
         var btns = arrayToObj(buttons);
         
         moveToLocation(location, options);
-        
         doh.robot[funcName](btns, opts.delay);
     };
 
@@ -74,8 +73,8 @@ var jqRobot = jqRobot || {};
          */
         typeKeys: function (selector, string, options) {
             var opts = options || {};
-            $(selector).focus();
-            
+			
+            jqRobot.sequence($(selector).focus);
             doh.robot.typeKeys(string, opts.delay, opts.duration);
         },
 
@@ -92,8 +91,7 @@ var jqRobot = jqRobot || {};
             var opts = options || {};
             opts.modifiers = arrayToObj(opts.modifiers);
             
-            $(selector).focus();
-            
+            jqRobot.sequence($(selector).focus);
             doh.robot.keyPress(character, opts.delay, opts.modifiers, opts.asynchronous);
         },
 
@@ -106,8 +104,8 @@ var jqRobot = jqRobot || {};
          */
         keyDown: function (selector, character, options) {
             var opts = options || {};
-            $(selector).focus();
             
+			jqRobot.sequence($(selector).focus);
             doh.robot.keyDown(character, opts.delay);
         },
         
@@ -120,8 +118,8 @@ var jqRobot = jqRobot || {};
          */
         keyUp: function (selector, character, options) {
             var opts = options || {};
-            $(selector).focus();
-            
+			
+			jqRobot.sequence($(selector).focus);
             doh.robot.keyUp(character, opts.delay);
         }, 
         
